@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Special Surprise!</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #ffe5ec, #ffc2d1);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 450px;
+            width: 90%;
+            min-height: 250px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative; /* Keeps button bound inside this container */
+        }
+
+        h1 {
+            color: #ff477e;
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            width: 100%;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+            height: 60px;
+            position: relative;
+        }
+
+        button {
+            padding: 12px 28px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+
+        #open-btn {
+            background-color: #ff477e;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 71, 126, 0.4);
+        }
+
+        #open-btn:hover {
+            background-color: #ff5c8a;
+            transform: scale(1.05);
+        }
+
+        /* Starts perfectly beside the open button, absolute transition logic handles evasion later */
+        #no-btn {
+            background-color: #f0f0f0;
+            color: #666;
+            z-index: 10;
+        }
+
+        /* Gift Box Styles */
+        .gift-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            height: 150px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .gift-box {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            background-color: #ff477e;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .gift-box::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background-color: #ffcc00;
+            left: 40px;
+        }
+
+        .gift-lid {
+            position: absolute;
+            width: 110px;
+            height: 25px;
+            background-color: #ff5c8a;
+            top: -22px;
+            left: -5px;
+            border-radius: 5px;
+            box-shadow: 0 4px 5px rgba(0,0,0,0.05);
+        }
+
+        .gift-lid::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 100%;
+            background-color: #ffcc00;
+            left: 45px;
+        }
+
+        .gift-bow {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+            top: -42px;
+            left: 35px;
+        }
+
+        /* Opening Animations */
+        .gift-container.animating .gift-box {
+            animation: shake 0.5s ease infinite;
+        }
+
+        .gift-container.animating .gift-lid,
+        .gift-container.animating .gift-bow {
+            animation: flyOff 0.8s forwards ease-in;
+        }
+
+        @keyframes shake {
+            0% { transform: rotate(0deg); }
+            20% { transform: rotate(-8deg); }
+            40% { transform: rotate(6deg); }
+            60% { transform: rotate(-6deg); }
+            80% { transform: rotate(4deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        @keyframes flyOff {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            50% { transform: translateY(-40px) rotate(-15deg); opacity: 1; }
+            100% { transform: translateY(-150px) rotate(-45deg); opacity: 0; }
+        }
+
+        /* Message Display */
+        .message-card {
+            display: none;
+            opacity: 0;
+            transform: scale(0.7);
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .message-card.show {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .message-card p {
+            color: #444;
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="screen-one">
+        <h1>Hey! I have a special surprise for you... 👀</h1>
+        <div class="btn-group" id="container-one-actions">
+            <button id="open-btn" onclick="goToGiftScreen()">Open this</button>
+            <button id="no-btn">No thanks</button>
+        </div>
+    </div>
+
+    <div class="container hidden" id="screen-two">
+        <h1>Tap the gift box to open your surprise! 🎁</h1>
+        <div class="gift-container" onclick="openGift()">
+            <div class="gift-box">
+                <div class="gift-bow"></div>
+                <div class="gift-lid"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container message-card" id="screen-three">
+        <h1>🎉 Happy Birthday! 🎉</h1>
+        <p>Wishing you a day filled with beautiful moments, endless laughter, and all the love you deserve.</p>
+        <p>May this year bring you closer to all your dreams. Thank you for being such an amazing person! 🎂✨</p>
+    </div>
+
+    <script>
+        const noBtn = document.getElementById('no-btn');
+        const screenOne = document.getElementById('screen-one');
+        
+        noBtn.addEventListener('mouseover', moveButton);
+        noBtn.addEventListener('click', moveButton); 
+
+        function moveButton() {
+            // Get the card boundaries so the button stays inside the safe zone
+            const containerRect = screenOne.getBoundingClientRect();
+            
+            // Limit motion rules safely within the white card container
+            const padding = 20;
+            const maxX = containerRect.width - noBtn.offsetWidth - padding;
+            const maxY = containerRect.height - noBtn.offsetHeight - padding;
+            
+            // Randomly calculate safe inner container placements
+            const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+            
+            // Switch style context safely to absolute overlay inside card boundaries
+            noBtn.style.position = 'absolute';
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+        }
+
+        function goToGiftScreen() {
+            document.getElementById('screen-one').classList.add('hidden');
+            document.getElementById('screen-two').classList.remove('hidden');
+        }
+
+        function openGift() {
+            const giftContainer = document.querySelector('.gift-container');
+            giftContainer.classList.add('animating');
+
+            setTimeout(() => {
+                document.getElementById('screen-two').classList.add('hidden');
+                document.getElementById('screen-three').classList.add('show');
+            }, 900);
+        }
+    </script>
+</body>
+</html>
